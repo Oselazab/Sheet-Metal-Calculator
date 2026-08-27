@@ -1,5 +1,9 @@
-// Default local market pricing database (El Labban, Alexandria)
-const defaultPrices = {
+// Paste your Google Sheet ID here
+const SHEET_ID = 'PASTE_YOUR_SHEET_ID_HERE'; 
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+
+// Fallback prices in case the Google Sheet fails to load or goes offline
+let marketPrices = {
   al5083: 200,
   al6061: 190,
   ss316: 190,
@@ -8,43 +12,43 @@ const defaultPrices = {
   ti5: 1800
 };
 
-// Retrieve saved rates from browser LocalStorage or fallback to defaults
-let marketPrices = JSON.parse(localStorage.getItem('rovMarketPrices')) || defaultPrices;
-
-// Initialize inputs in the price editor drawer
-function initEditorInputs() {
-  for (const key in marketPrices) {
-    const field = document.getElementById('edit_' + key);
-    if (field) {
-      field.value = marketPrices[key];
+// Fetch live prices from Google Sheets
+async function fetchPricesFromSheet() {
+  try {
+    const response = await fetch(SHEET_URL);
+    if (!response.ok) throw new Error("Network response was not ok");
+    
+    const csvText = await response.text();
+    
+    // Parse the CSV data
+    const rows = csvText.split('\n');
+    
+    // Start from i=1 to skip the header row
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].split(',');
+      if (row.length >= 2) {
+        const key = row[0].trim();
+        const price = parseFloat(row[1].trim());
+        
+        // If the key exists in our system and the price is a valid number, update it
+        if (marketPrices[key] !== undefined && !isNaN(price)) {
+          marketPrices[key] = price;
+        }
+      }
     }
+    
+    console.log("Prices successfully synced with Google Sheets!");
+    
+    // Refresh the calculator with the newly downloaded prices
+    updatePrice();
+    calculate();
+    
+  } catch (error) {
+    console.error("Failed to fetch Google Sheet. Using fallback local prices.", error);
   }
 }
 
-// Toggle visibility of the database drawer
-function togglePriceEditor() {
-  const drawer = document.getElementById('priceEditor');
-  drawer.classList.toggle('hidden');
-  if (!drawer.classList.contains('hidden')) {
-    initEditorInputs();
-  }
-}
-
-// Save modified prices to LocalStorage
-function savePrices() {
-  for (const key in marketPrices) {
-    const field = document.getElementById('edit_' + key);
-    if (field) {
-      marketPrices[key] = parseFloat(field.value) || 0;
-    }
-  }
-  localStorage.setItem('rovMarketPrices', JSON.stringify(marketPrices));
-  togglePriceEditor();
-  updatePrice();
-  calculate();
-}
-
-// Check for ROV material warnings (e.g., 304 SS in marine environments)
+// Check for ROV material warnings
 function checkRovWarning() {
   const selectedMaterial = document.getElementById('material').value;
   const warningBox = document.getElementById('rovWarning');
@@ -82,7 +86,7 @@ function calculate() {
   const pricePerKg = parseFloat(document.getElementById('pricePerKg').value) || 0;
   const isLocalPriceActive = document.getElementById('useAlexPrice').checked;
 
-  // Conversion: mm to meters (mm / 1000)
+  // Conversion: mm to meters
   const volumeM3 = (length / 1000) * (width / 1000) * (thickness / 1000);
   const weightKg = volumeM3 * density;
   const totalPrice = weightKg * pricePerKg;
@@ -104,8 +108,10 @@ function calculate() {
 
 // Initial state setup on page load
 document.addEventListener('DOMContentLoaded', () => {
-  initEditorInputs();
   checkRovWarning();
   updatePrice();
   calculate();
+  
+  // Call the Google Sheets fetch function in the background
+  fetchPricesFromSheet();
 });
