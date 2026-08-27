@@ -12,11 +12,12 @@
     <header class="app-header">
       <div class="logo-badge">ROV CAD / FAB</div>
       <h1>Material Weight & Price Calculator</h1>
-      <p>Estimate mass, volume, and material cost for marine-grade metals.</p>
+      <p>Estimate mass, volume, and material cost ranges for marine-grade materials.</p>
     </header>
 
     <div class="calculator-card">
       
+      <!-- Material Selection Section -->
       <section class="form-section">
         <label for="material" class="section-label">Material Grade</label>
         <div class="select-wrapper">
@@ -33,6 +34,9 @@
             <optgroup label="Titanium (Deep Pressure Vessels)">
               <option value="ti5" data-density="4430">Titanium Gr 5 / Ti-6Al-4V (4.43 g/cm³) — High Strength/Weight</option>
             </optgroup>
+            <optgroup label="Polymers (Isolation & Buoyancy)">
+              <option value="pa6" data-density="1140">Polyamide / Nylon 6 (1.14 g/cm³) — Tough & Machinable</option>
+            </optgroup>
           </select>
         </div>
         <div id="rovWarning" class="alert-banner warning hidden">
@@ -40,6 +44,7 @@
         </div>
       </section>
 
+      <!-- Local Market Toggle -->
       <section class="form-section toggle-box">
         <div class="toggle-control">
           <label class="switch">
@@ -51,43 +56,10 @@
             <small>Alexandria rate database (EGP)</small>
           </div>
         </div>
-        <button type="button" class="btn-secondary" onclick="togglePriceEditor()">Edit Rates</button>
+        <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" target="_blank" class="btn-secondary" style="text-decoration:none; display:inline-block; text-align:center;">Edit Sheet</a>
       </section>
 
-      <div class="price-editor-drawer hidden" id="priceEditor">
-        <div class="drawer-header">
-          <h3>El Labban Market Database (EGP / kg)</h3>
-          <p>Updates are saved automatically in browser memory.</p>
-        </div>
-        <div class="price-grid">
-          <div class="input-field">
-            <label for="edit_al5083">Al 5083</label>
-            <input type="number" id="edit_al5083">
-          </div>
-          <div class="input-field">
-            <label for="edit_al6061">Al 6061</label>
-            <input type="number" id="edit_al6061">
-          </div>
-          <div class="input-field">
-            <label for="edit_ss316">SS 316L</label>
-            <input type="number" id="edit_ss316">
-          </div>
-          <div class="input-field">
-            <label for="edit_ss304">SS 304</label>
-            <input type="number" id="edit_ss304">
-          </div>
-          <div class="input-field">
-            <label for="edit_ss2205">SS 2205</label>
-            <input type="number" id="edit_ss2205">
-          </div>
-          <div class="input-field">
-            <label for="edit_ti5">Titanium Gr 5</label>
-            <input type="number" id="edit_ti5">
-          </div>
-        </div>
-        <button type="button" class="btn-primary full-width" onclick="savePrices()">Save & Apply Changes</button>
-      </div>
-
+      <!-- Dimensions Form -->
       <section class="form-section dimensions-grid">
         <div class="input-field">
           <label for="length">Length (mm)</label>
@@ -102,11 +74,15 @@
           <input type="number" id="thickness" placeholder="3" min="0" step="any" oninput="calculate()">
         </div>
         <div class="input-field">
-          <label for="pricePerKg">Price per kg</label>
-          <input type="number" id="pricePerKg" placeholder="Custom" min="0" step="any" oninput="calculate()">
+          <label>Price Range per kg</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" id="priceMin" placeholder="Min" min="0" step="any" oninput="calculate()">
+            <input type="number" id="priceMax" placeholder="Max" min="0" step="any" oninput="calculate()">
+          </div>
         </div>
       </section>
 
+      <!-- Real-time Output Panel -->
       <section class="results-card">
         <div class="result-metric">
           <span class="metric-label">Calculated Volume</span>
@@ -118,7 +94,7 @@
         </div>
         <div class="result-metric total-cost-metric">
           <span class="metric-label">Estimated Total Price</span>
-          <span class="metric-value highlight-price" id="outPrice">$0.00</span>
+          <span class="metric-value highlight-price" id="outPrice" style="font-size: 1.15rem;">$0.00 - $0.00</span>
         </div>
       </section>
 
