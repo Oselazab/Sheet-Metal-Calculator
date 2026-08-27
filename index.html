@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subsea ROV Material & Cost Estimator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <main class="app-container">
+    <header class="app-header">
+      <div class="logo-badge">ROV CAD / FAB</div>
+      <h1>Material Weight & Price Calculator</h1>
+      <p>Estimate mass, volume, and material cost for marine-grade metals.</p>
+    </header>
+
+    <div class="calculator-card">
+      
+      <section class="form-section">
+        <label for="material" class="section-label">Material Grade</label>
+        <div class="select-wrapper">
+          <select id="material" onchange="updatePrice(); checkRovWarning(); calculate();">
+            <optgroup label="Aluminum Alloys (Frames & Housings)">
+              <option value="al5083" data-density="2660">Al 5083 (2.66 g/cm³) — Marine Grade Hull</option>
+              <option value="al6061" data-density="2700">Al 6061-T6 (2.70 g/cm³) — Structural (Anodize Recommended)</option>
+            </optgroup>
+            <optgroup label="Stainless Steels (Fasteners & Brackets)">
+              <option value="ss316" data-density="8000">SS 316 / 316L (8.00 g/cm³) — Standard Marine</option>
+              <option value="ss304" data-density="7930">SS 304 (7.93 g/cm³) — Freshwater / Non-Saltwater</option>
+              <option value="ss2205" data-density="7800">SS 2205 Duplex (7.80 g/cm³) — Pitting Resistant</option>
+            </optgroup>
+            <optgroup label="Titanium (Deep Pressure Vessels)">
+              <option value="ti5" data-density="4430">Titanium Gr 5 / Ti-6Al-4V (4.43 g/cm³) — High Strength/Weight</option>
+            </optgroup>
+          </select>
+        </div>
+        <div id="rovWarning" class="alert-banner warning hidden">
+          <span>⚠️ 304 SS is susceptible to crevice/pitting corrosion in marine environments. Consider 316L or Al 5083.</span>
+        </div>
+      </section>
+
+      <section class="form-section toggle-box">
+        <div class="toggle-control">
+          <label class="switch">
+            <input type="checkbox" id="useAlexPrice" onchange="updatePrice(); calculate();">
+            <span class="slider"></span>
+          </label>
+          <div class="toggle-text">
+            <strong>Use El Labban Local Market Price</strong>
+            <small>Alexandria rate database (EGP)</small>
+          </div>
+        </div>
+        <button type="button" class="btn-secondary" onclick="togglePriceEditor()">Edit Rates</button>
+      </section>
+
+      <div class="price-editor-drawer hidden" id="priceEditor">
+        <div class="drawer-header">
+          <h3>El Labban Market Database (EGP / kg)</h3>
+          <p>Updates are saved automatically in browser memory.</p>
+        </div>
+        <div class="price-grid">
+          <div class="input-field">
+            <label for="edit_al5083">Al 5083</label>
+            <input type="number" id="edit_al5083">
+          </div>
+          <div class="input-field">
+            <label for="edit_al6061">Al 6061</label>
+            <input type="number" id="edit_al6061">
+          </div>
+          <div class="input-field">
+            <label for="edit_ss316">SS 316L</label>
+            <input type="number" id="edit_ss316">
+          </div>
+          <div class="input-field">
+            <label for="edit_ss304">SS 304</label>
+            <input type="number" id="edit_ss304">
+          </div>
+          <div class="input-field">
+            <label for="edit_ss2205">SS 2205</label>
+            <input type="number" id="edit_ss2205">
+          </div>
+          <div class="input-field">
+            <label for="edit_ti5">Titanium Gr 5</label>
+            <input type="number" id="edit_ti5">
+          </div>
+        </div>
+        <button type="button" class="btn-primary full-width" onclick="savePrices()">Save & Apply Changes</button>
+      </div>
+
+      <section class="form-section dimensions-grid">
+        <div class="input-field">
+          <label for="length">Length (mm)</label>
+          <input type="number" id="length" placeholder="1000" min="0" step="any" oninput="calculate()">
+        </div>
+        <div class="input-field">
+          <label for="width">Width (mm)</label>
+          <input type="number" id="width" placeholder="500" min="0" step="any" oninput="calculate()">
+        </div>
+        <div class="input-field">
+          <label for="thickness">Thickness (mm)</label>
+          <input type="number" id="thickness" placeholder="3" min="0" step="any" oninput="calculate()">
+        </div>
+        <div class="input-field">
+          <label for="pricePerKg">Price per kg</label>
+          <input type="number" id="pricePerKg" placeholder="Custom" min="0" step="any" oninput="calculate()">
+        </div>
+      </section>
+
+      <section class="results-card">
+        <div class="result-metric">
+          <span class="metric-label">Calculated Volume</span>
+          <span class="metric-value" id="outVolume">0.0000 <small>m³</small></span>
+        </div>
+        <div class="result-metric">
+          <span class="metric-label">Total Weight</span>
+          <span class="metric-value highlight-weight" id="outWeight">0.00 <small>kg</small></span>
+        </div>
+        <div class="result-metric total-cost-metric">
+          <span class="metric-label">Estimated Total Price</span>
+          <span class="metric-value highlight-price" id="outPrice">$0.00</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
