@@ -1,5 +1,5 @@
 // Paste your Google Sheet ID here
-const SHEET_ID = 'PASTE_YOUR_SHEET_ID_HERE'; 
+const SHEET_ID = '1YdjXMeK9PNs8PkA7DPEa2Q9Ib6ue_aoouA3-uop9K8o'; 
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 // Fallback prices in case the Google Sheet fails to load or goes offline
