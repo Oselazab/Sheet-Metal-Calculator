@@ -1,0 +1,40 @@
+name: Gemini Auto Coder
+
+on:
+  workflow_dispatch:
+    inputs:
+      instructions:
+        description: 'What changes should Gemini make?'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  run-gemini:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-genai
+
+      - name: Run Gemini Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          USER_PROMPT: ${{ github.event.inputs.instructions }}
+        run: python .github/scripts/generate_code.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff-index --quiet HEAD || git commit -m "Auto-update via Gemini: ${{ github.event.inputs.instructions }}"
+          git push
