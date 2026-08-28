@@ -1,14 +1,21 @@
 import os
+import re
 from google import genai
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-prompt = os.environ["USER_PROMPT"]
+api_key = os.environ.get("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY environment variable is missing.")
 
-# Example: Ask Gemini to generate or update script.js
-response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=f"Update the project files according to this request: {prompt}. Return only clean code without markdown formatting."
-)
+client = genai.Client(api_key=api_key)
+prompt = os.environ.get("USER_PROMPT", "")
 
-with open("script.js", "w") as f:
-    f.write(response.text)
+# Load existing script.js if available for context
+current_code = ""
+if os.path.exists("script.js"):
+    with open("script.js", "r", encoding="utf-8") as f:
+        current_code = f.read()
+
+full_prompt = f"""You are an automated code generator for a GitHub repository.
+Existing script.js content:
+```javascript
+{current_code}
