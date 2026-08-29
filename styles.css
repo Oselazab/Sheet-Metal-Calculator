@@ -30,7 +30,7 @@ body {
 
 .app-container {
   width: 100%;
-  max-width: 540px;
+  max-width: 580px;
 }
 
 .app-header {
@@ -97,7 +97,9 @@ body {
   font-weight: 500;
 }
 
-input[type="number"], select {
+input[type="number"],
+input[type="text"],
+select {
   width: 100%;
   background: var(--input-bg);
   border: 1px solid var(--border-color);
@@ -109,15 +111,17 @@ input[type="number"], select {
   transition: all 0.2s ease;
 }
 
-input[type="number"]:focus, select:focus {
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus {
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 input[readonly] {
   background: #151d33;
-  color: #64748b;
-  cursor: not-allowed;
+  color: #94a3b8;
+  cursor: default;
 }
 
 /* Alert Banner */
@@ -135,11 +139,11 @@ input[readonly] {
   color: var(--warning-color);
 }
 
-.alert-banner.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
-/* Toggle Switch Styling */
+/* Toggle Switch */
 .toggle-box {
   background: var(--input-bg);
   border: 1px solid var(--border-color);
@@ -213,80 +217,11 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* Drawer Editor */
-.price-editor-drawer {
-  background: var(--input-bg);
-  border: 1px solid var(--accent-blue);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.price-editor-drawer.hidden {
-  display: none;
-}
-
-.drawer-header h3 {
-  font-size: 0.95rem;
-  color: var(--accent-blue);
-}
-
-.drawer-header p {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-
-.price-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
 /* Dimensions Grid */
 .dimensions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
-
-/* Buttons */
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--accent-blue);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: var(--accent-blue);
-}
-
-.btn-primary {
-  background: var(--accent-blue);
-  color: #000;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #7dd3fc;
-}
-
-.full-width {
-  width: 100%;
 }
 
 /* Results Section */

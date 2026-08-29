@@ -12,89 +12,120 @@
     <header class="app-header">
       <div class="logo-badge">ROV CAD / FAB</div>
       <h1>Material Weight & Price Calculator</h1>
-      <p>Estimate mass, volume, and material cost ranges for marine-grade materials.</p>
+      <p>Estimate mass, volume, and material cost ranges for marine metals and engineering polymers.</p>
     </header>
 
     <div class="calculator-card">
       
-      <!-- Material Selection Section -->
+      <!-- Shape / Geometry Selector -->
       <section class="form-section">
-        <label for="material" class="section-label">Material Grade</label>
+        <label for="shapeType" class="section-label">Stock Shape / شكل الخامة</label>
+        <div class="select-wrapper">
+          <select id="shapeType" onchange="onShapeChange(); calculate();">
+            <option value="sheet">Flat Sheet & Plate / ألواح وصاج مسطح</option>
+            <option value="tube">Hollow Tube & Pipe / مواسير وخراطيم مفرغة</option>
+            <option value="rod">Solid Round Bar & Rod / أعمدة مصمتة (بارات)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Material Grade Selector -->
+      <section class="form-section">
+        <label for="material" class="section-label">Material Grade / نوع الخامة</label>
         <div class="select-wrapper">
           <select id="material" onchange="updatePrice(); checkRovWarning(); calculate();">
-            <optgroup label="Aluminum Alloys (Frames & Housings)">
-              <option value="al5083" data-density="2660">Al 5083 (2.66 g/cm³) — Marine Grade Hull</option>
-              <option value="al6061" data-density="2700">Al 6061-T6 (2.70 g/cm³) — Structural (Anodize Recommended)</option>
+            <optgroup label="Engineering Polymers / لدائن هندسية (Abo Al Dardar / أبو الدردار)">
+              <option value="pa6" data-density="1150">PA 6 — Cast Nylon / نايلون كاست أبيض وأزرق (1.15 g/cm³)</option>
+              <option value="pa66" data-density="1150">PA 6.6 — Extruded Nylon / نايلون مسحوب 6.6 (1.15 g/cm³)</option>
+              <option value="pa6_mos2" data-density="1160">PA 6+MoS2 — Graphite/Oil Black Nylon / نايلون أسود جرافيت (1.16 g/cm³)</option>
+              <option value="pa12" data-density="1020">PA 12 — Marine Nylon / نايلون بحري 12 (1.02 g/cm³)</option>
             </optgroup>
-            <optgroup label="Stainless Steels (Fasteners & Brackets)">
-              <option value="ss316" data-density="8000">SS 316 / 316L (8.00 g/cm³) — Standard Marine</option>
-              <option value="ss304" data-density="7930">SS 304 (7.93 g/cm³) — Freshwater / Non-Saltwater</option>
-              <option value="ss2205" data-density="7800">SS 2205 Duplex (7.80 g/cm³) — Pitting Resistant</option>
+            <optgroup label="Aluminum Alloys / ألومنيوم (El Labban / اللبان)">
+              <option value="al5083" data-density="2660">Al 5083 — Marine Aluminum / ألومنيوم بحري (2.66 g/cm³)</option>
+              <option value="al6061" data-density="2700">Al 6061-T6 — Duralumin / ألومنيوم دورال مسحوب (2.70 g/cm³)</option>
             </optgroup>
-            <optgroup label="Titanium (Deep Pressure Vessels)">
-              <option value="ti5" data-density="4430">Titanium Gr 5 / Ti-6Al-4V (4.43 g/cm³) — High Strength/Weight</option>
+            <optgroup label="Stainless Steels / ستانلس ستيل (El Labban / اللبان)">
+              <option value="ss316" data-density="8000">SS 316 / 316L — Marine Stainless / ستانلس بحري (8.00 g/cm³)</option>
+              <option value="ss304" data-density="7930">SS 304 — Commercial/Food Grade / ستانلس غذائي 304 (7.93 g/cm³)</option>
+              <option value="ss2205" data-density="7800">SS 2205 — Duplex Marine Stainless / ستانلس دوبلكس (7.80 g/cm³)</option>
             </optgroup>
-            <optgroup label="Polymers (Isolation & Buoyancy)">
-              <option value="pa6" data-density="1140">Polyamide / Nylon 6 (1.14 g/cm³) — Tough & Machinable</option>
+            <optgroup label="Titanium / تيتانيوم">
+              <option value="ti5" data-density="4430">Titanium Gr 5 (Ti-6Al-4V) — Grade 5 / تيتانيوم جريد 5 (4.43 g/cm³)</option>
             </optgroup>
           </select>
         </div>
         <div id="rovWarning" class="alert-banner warning hidden">
-          <span>⚠️ 304 SS is susceptible to crevice/pitting corrosion in marine environments. Consider 316L or Al 5083.</span>
+          <span id="warningText"></span>
         </div>
       </section>
 
-      <!-- Local Market Toggle -->
+      <!-- Alexandria Market Price Toggle -->
       <section class="form-section toggle-box">
         <div class="toggle-control">
           <label class="switch">
-            <input type="checkbox" id="useAlexPrice" onchange="updatePrice(); calculate();">
+            <input type="checkbox" id="useAlexPrice" checked onchange="updatePrice(); calculate();">
             <span class="slider"></span>
           </label>
           <div class="toggle-text">
-            <strong>Use El Labban Local Market Price</strong>
-            <small>Alexandria rate database (EGP)</small>
+            <strong>Use Alexandria Local Market Price</strong>
+            <small>Live rates from Abo Al Dardar & El Labban database (EGP / kg)</small>
           </div>
         </div>
-        <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" target="_blank" class="btn-secondary" style="text-decoration:none; display:inline-block; text-align:center;">Edit Sheet</a>
       </section>
 
-      <!-- Dimensions Form -->
+      <!-- Dimensions Grid -->
       <section class="form-section dimensions-grid">
-        <div class="input-field">
+        <div class="input-field" id="field_length">
           <label for="length">Length (mm)</label>
           <input type="number" id="length" placeholder="1000" min="0" step="any" oninput="calculate()">
         </div>
-        <div class="input-field">
+
+        <!-- Sheet Dimensions -->
+        <div class="input-field" id="field_width">
           <label for="width">Width (mm)</label>
           <input type="number" id="width" placeholder="500" min="0" step="any" oninput="calculate()">
         </div>
-        <div class="input-field">
+        <div class="input-field" id="field_thickness">
           <label for="thickness">Thickness (mm)</label>
           <input type="number" id="thickness" placeholder="3" min="0" step="any" oninput="calculate()">
         </div>
+
+        <!-- Tube Dimensions -->
+        <div class="input-field hidden" id="field_outerDiameter">
+          <label for="outerDiameter">Outer Diameter (OD mm)</label>
+          <input type="number" id="outerDiameter" placeholder="50" min="0" step="any" oninput="calculate()">
+        </div>
+        <div class="input-field hidden" id="field_wallThickness">
+          <label for="wallThickness">Wall Thickness (mm)</label>
+          <input type="number" id="wallThickness" placeholder="5" min="0" step="any" oninput="calculate()">
+        </div>
+
+        <!-- Rod Dimension -->
+        <div class="input-field hidden" id="field_rodDiameter">
+          <label for="rodDiameter">Diameter (mm)</label>
+          <input type="number" id="rodDiameter" placeholder="40" min="0" step="any" oninput="calculate()">
+        </div>
+
+        <!-- Price Input -->
         <div class="input-field">
-          <label>Price Range per kg</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="number" id="priceMin" placeholder="Min" min="0" step="any" oninput="calculate()">
-            <input type="number" id="priceMax" placeholder="Max" min="0" step="any" oninput="calculate()">
-          </div>
+          <label for="pricePerKg">Rate (EGP/kg)</label>
+          <input type="text" id="pricePerKg" placeholder="Custom rate" oninput="calculate()">
         </div>
       </section>
 
-      <!-- Real-time Output Panel -->
+      <!-- Results Card -->
       <section class="results-card">
         <div class="result-metric">
           <span class="metric-label">Calculated Volume</span>
-          <span class="metric-value" id="outVolume">0.0000 <small>m³</small></span>
+          <span class="metric-value" id="outVolume">0.00000 <small>m³</small></span>
         </div>
         <div class="result-metric">
-          <span class="metric-label">Total Weight</span>
+          <span class="metric-label">Total Estimated Weight</span>
           <span class="metric-value highlight-weight" id="outWeight">0.00 <small>kg</small></span>
         </div>
         <div class="result-metric total-cost-metric">
-          <span class="metric-label">Estimated Total Price</span>
-          <span class="metric-value highlight-price" id="outPrice" style="font-size: 1.15rem;">$0.00 - $0.00</span>
+          <span class="metric-label">Estimated Total Price Range</span>
+          <span class="metric-value highlight-price" id="outPrice">0.00 EGP</span>
         </div>
       </section>
 
