@@ -1,6 +1,7 @@
 // Google Sheet Live Sync Configuration
 const SHEET_ID = '1YdjXMeK9PNs8PkA7DPEa2Q9Ib6ue_aoouA3-uop9K8o';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+// FIX 1: Using the gviz endpoint which natively supports CORS and CSV formatting
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
 // Fallback price ranges (Abo Al Dardar & El Labban Market Rates in EGP/kg)
 let marketPrices = {
@@ -25,12 +26,16 @@ async function fetchPricesFromSheet() {
     const csvText = await response.text();
     const rows = csvText.trim().split('\n');
     
-    for (let i = 1; i < rows.length; i++) {
-      const cols = rows[i].split(',').map(c => c.trim());
+    for (let i = 1; i < rows.length; i++) { // Start at 1 to skip headers
+      // FIX 2: Google Sheets wraps CSV values in quotes (e.g., "190"). We must strip them out.
+      const cleanRow = rows[i].replace(/['"]+/g, '');
+      const cols = cleanRow.split(',').map(c => c.trim());
+      
       if (cols.length >= 3) {
         const key = cols[0];
         const min = parseFloat(cols[1]);
         const max = parseFloat(cols[2]);
+        
         if (!isNaN(min) && !isNaN(max)) {
           marketPrices[key] = { min, max };
         }
@@ -144,9 +149,17 @@ function calculate() {
     minPrice = rates.min;
     maxPrice = rates.max;
   } else {
-    const customPrice = parseFloat(document.getElementById('pricePerKg').value) || 0;
-    minPrice = customPrice;
-    maxPrice = customPrice;
+    // FIX 3: Allow users to type custom ranges (e.g., "150 - 170")
+    const customPriceText = document.getElementById('pricePerKg').value || '';
+    if (customPriceText.includes('-')) {
+      const parts = customPriceText.split('-');
+      minPrice = parseFloat(parts[0]) || 0;
+      maxPrice = parseFloat(parts[1]) || 0;
+    } else {
+      const customPrice = parseFloat(customPriceText) || 0;
+      minPrice = customPrice;
+      maxPrice = customPrice;
+    }
   }
 
   const minTotal = weightKg * minPrice;
@@ -159,7 +172,7 @@ function calculate() {
   const format = (n) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const unit = isLocalPriceActive ? ' EGP' : ' $';
 
-  if (minTotal === maxTotal) {
+  if (minTotal === maxTotal || maxTotal === 0) {
     document.getElementById('outPrice').textContent = `${format(minTotal)}${unit}`;
   } else {
     document.getElementById('outPrice').textContent = `${format(minTotal)} – ${format(maxTotal)}${unit}`;
